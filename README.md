@@ -14,11 +14,12 @@ Terminal Duck subscribes to VS Code's terminal shell integration events and keep
 
 ## Install
 
-Terminal Duck ships as a VSIX (no marketplace listing yet).
+Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=DarrenJaworski.terminal-duck):
 
-1. Grab `terminal-duck-1.0.0.vsix` from the [latest release](https://github.com/darrenjaworski/terminal-duck/releases), or build it yourself with `npm install && npm run package`.
-2. In VS Code, open the Extensions view → **... (More Actions)** → **Install from VSIX...** and pick the file.
-3. Reload the window when prompted.
+- **From VS Code**: open the Extensions view, search for `Terminal Duck`, and click **Install**.
+- **From the command line**: `code --install-extension DarrenJaworski.terminal-duck`
+
+Or grab the `.vsix` from the [latest GitHub release](https://github.com/darrenjaworski/terminal-duck/releases) and use Extensions view → **... (More Actions)** → **Install from VSIX...**.
 
 ## Usage
 
