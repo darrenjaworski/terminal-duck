@@ -67,6 +67,104 @@ Because the UX tradeoff is the whole feature. Getting it subtly right is more va
 - Auto-opening the chat pane. Never interrupt focus; the user initiates.
 - Inline code actions on log files. Nice idea, separate feature, different scope.
 
+## 3. Terminal selection → "Ask Duck"
+
+### Problem
+
+The status-bar nudge covers "I just hit an error." It doesn't cover "I want to ask about _this specific line_ of output I'm staring at" — stack frame, log line, prompt, whatever. Today the user has to copy, switch to chat, paste, and frame the question.
+
+### Shape
+
+- Register a context-menu action on the terminal selection (`editor/context` won't fire here — terminals use `terminal/context` in the manifest's `menus`).
+- The handler reads `vscode.window.activeTerminal` selection text via the proposed selection API (or the supported `vscode.env.clipboard` round-trip if the selection API isn't stable yet — confirm before building).
+- Open chat pre-filled with the selection wrapped in a fenced block plus a one-line scaffold: "Help me understand this terminal output:". No slash command — let the user pick.
+- Should also be a command palette entry so it's keybindable.
+
+### Open questions
+
+- Does VS Code expose a stable terminal selection API as of `^1.95.0`? If not, the clipboard fallback is acceptable but slightly gross — confirm before committing.
+- Do we attach the surrounding command + exit code as additional context, or send the raw selection only? Probably the former: the failure context is exactly the value-add.
+
+## 4. `@duck /diff` slash command
+
+### Problem
+
+The failure-discovery flow tells the user _that_ something broke; it doesn't tell them _what they changed_ that might have caused it. The current `/explain` and `/fix` prompts have to infer cause from output alone.
+
+### Shape
+
+- New slash command alongside `fix` / `rerun` / `explain`. Add to the `package.json` `chatParticipants.commands` array and to `src/prompts.ts`.
+- Pull `git diff` since the last successful run of the same command (or, if we can't identify "the same command," since the working tree's last clean state).
+- Feed both the recent shell history _and_ the diff into the prompt; the system prompt frames the LLM as "look at what changed, then look at what broke."
+- Bound the diff: hard cap at e.g. 4 KB after stripping lockfiles and generated files, otherwise the prompt blows out.
+
+### Open questions
+
+- "Last green run of the same command" requires us to remember exit codes per command string — `ShellHistory` already has this, but we'd need a small lookup helper. Worth it.
+- What's "the same command"? Exact string match is brittle (`npm test foo` vs `npm test bar`). Probably match on the first whitespace-separated token, which gives `npm test` ≡ `npm test`. Imperfect but useful.
+- Multi-root workspaces: `git diff` against which root? Use the cwd of the failing command.
+
+## 5. Pinned commands
+
+### Problem
+
+The 20-command cap is fine until the failure you care about is 21 commands ago. Users instinctively reach for "scroll back" — which doesn't exist for an in-memory rolling buffer.
+
+### Shape
+
+- Add a `pinned: boolean` flag to `CapturedExecution`.
+- A user-facing command (`Terminal Duck: Pin last command`) and the inverse (`Unpin`).
+- Pinned entries are exempt from the 20-command eviction policy but still count toward total memory bounds — cap the number of pins (e.g. 5) so a misuse doesn't bloat the buffer.
+- Surface pinned-vs-recent visibly in the LM tool output and the chat prompt context, so the model knows which entries are "user said this matters."
+
+### Open questions
+
+- Where does pinning live? Easiest: a status bar action that appears alongside the failure nudge ("Pin this command"). Discoverability matters more than command palette tidiness.
+- Does pinning survive a reload? Only meaningful once persistence (item 1) lands — until then, pins die with the buffer. That's fine; ship pinning _after_ persistence or accept the limitation.
+
+## 6. Suggested-command runner
+
+### Problem
+
+When Duck says "try `npm install --legacy-peer-deps`," the user has to copy the command into the terminal themselves. The full loop (problem → suggestion → action → new outcome) lives outside the extension; we only own one segment.
+
+### Shape
+
+- Post-process Duck's chat response: detect fenced shell blocks tagged ` ```bash ` / ` ```sh ` and render a "Run in terminal" action under each.
+- The action calls `terminal.sendText(cmd, false)` (no implicit Enter) so the user sees the command queued and confirms by hitting Enter themselves. **Never auto-execute.**
+- Active terminal preference: send to the terminal that produced the original failure if we can identify it; otherwise the active terminal; otherwise create a new one.
+- Setting `terminalDuck.suggestRunActions` (default `true`) so the more conservative users can disable.
+
+### Open questions
+
+- Chat participant responses don't have post-processing hooks today — we'd be reading our own stream as we emit it and pushing markdown actions back into the response. Confirm `vscode.ChatResponseStream` exposes the right primitive (it has `button` / `commandLink` markdown helpers; check whether they render inside fenced blocks vs only as standalone lines).
+- Multi-line / multi-step suggestions: do we render one button per block or one combined "run all" button? Per-block is safer.
+
+### Non-goals
+
+- Auto-running anything. The user always confirms.
+- Editing the user's command before sending. We send what Duck wrote; the user can edit in the terminal.
+
+## 7. Graceful model fallback
+
+### Problem
+
+`vscode.lm.selectChatModels({ vendor: 'copilot', family: 'gpt-4o' })` returns empty if the user's Copilot entitlement doesn't include that family — and we currently surface a friendly markdown apology and stop. That's a poor outcome when the user has _some_ Copilot model available, just not 4o.
+
+### Shape
+
+- Try a small priority list of Copilot families in order: `gpt-4o`, `gpt-4o-mini`, then any model the vendor exposes (`selectChatModels({ vendor: 'copilot' })` with no family filter, take the first).
+- Log the chosen family in the response footer the first time it falls back, so the user knows they're not on the default.
+- Setting `terminalDuck.modelFamilies` (string array) to override the priority list for power users.
+
+### Open questions
+
+- Do we cache the last-good model for the session, or re-resolve every turn? Re-resolving handles entitlement changes mid-session but adds latency; cache + invalidate-on-error is probably the right balance.
+
+### Non-goals
+
+- Non-Copilot vendors. Out of scope until someone asks.
+
 ## Not on the roadmap (for now)
 
 Kept here so we stop relitigating:
