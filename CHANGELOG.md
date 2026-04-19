@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-04-19
+
+### Added
+
+- "Ask Duck?" status bar hint. On a non-zero exit in a shell-integrated terminal, a subtle right-aligned status bar item appears for 60 seconds; clicking it opens Copilot Chat pre-filled with `@duck /explain` and a concrete question about the failure. Subsequent failures within the window extend the timer instead of flickering.
+- `terminalDuck.suggestOnFailure` setting (boolean, default `true`) to opt out of the status bar hint.
+
 ## [1.0.1] - 2026-04-19
 
 ### Added
