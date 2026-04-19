@@ -1,13 +1,5 @@
 import * as vscode from 'vscode';
-
-interface CapturedExecution {
-	commandLine: string;
-	cwd: string | undefined;
-	exitCode: number | undefined;
-	startedAt: number;
-	endedAt: number | undefined;
-	output: string;
-}
+import { CapturedExecution, formatExecutions } from './format';
 
 const MAX_HISTORY = 20;
 const MAX_OUTPUT_BYTES = 8_000;
@@ -70,35 +62,6 @@ class ShellHistory {
 	clear() {
 		this.buffer.length = 0;
 	}
-}
-
-function stripAnsi(s: string): string {
-	return s.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, '');
-}
-
-function formatExecutions(executions: CapturedExecution[]): string {
-	if (executions.length === 0) {
-		return '(no terminal commands have been captured yet — shell integration may not be active)';
-	}
-	return executions
-		.map((x, i) => {
-			const status =
-				x.exitCode === undefined
-					? 'still running'
-					: x.exitCode === 0
-						? 'exit 0'
-						: `FAILED exit ${x.exitCode}`;
-			const output = stripAnsi(x.output).trim();
-			return [
-				`### Command ${i + 1} (${status})`,
-				`cwd: ${x.cwd ?? 'unknown'}`,
-				'```',
-				`$ ${x.commandLine}`,
-				output || '(no output captured)',
-				'```',
-			].join('\n');
-		})
-		.join('\n\n');
 }
 
 const SYSTEM_PROMPT = `You are Duck, a rubber-duck debugging assistant for a developer working in VS Code.
