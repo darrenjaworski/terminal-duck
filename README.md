@@ -12,6 +12,14 @@ Terminal Duck subscribes to VS Code's terminal shell integration events and keep
 - [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) installed and signed in — Terminal Duck uses the `vscode.lm` API, which routes through Copilot's entitlement
 - An integrated terminal with [shell integration](https://code.visualstudio.com/docs/terminal/shell-integration) active (default for bash, zsh, fish, and pwsh in recent VS Code)
 
+## Install
+
+Terminal Duck ships as a VSIX (no marketplace listing yet).
+
+1. Grab `terminal-duck-1.0.0.vsix` from the [latest release](https://github.com/darrenjaworski/terminal-duck/releases), or build it yourself with `npm install && npm run package`.
+2. In VS Code, open the Extensions view → **... (More Actions)** → **Install from VSIX...** and pick the file.
+3. Reload the window when prompted.
+
 ## Usage
 
 1. Run some commands in the integrated terminal.

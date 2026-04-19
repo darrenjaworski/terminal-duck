@@ -2,7 +2,7 @@
   "name": "terminal-duck",
   "displayName": "Terminal Duck",
   "description": "A chat participant that sees the commands you actually ran in the terminal and explains what broke.",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "darrenjaworski",
   "author": "Darren Jaworski <darrenjaworski@gmail.com>",
   "license": "MIT",
