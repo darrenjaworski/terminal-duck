@@ -1,0 +1,17 @@
+.git/**
+.github/**
+.vscode/**
+.vscode-test/**
+.gitignore
+.prettierignore
+.prettierrc.json
+.vscodeignore
+eslint.config.mjs
+tsconfig.json
+src/**
+**/*.map
+**/*.test.ts
+IDEAS.md
+*.vsix
+coverage/**
+vitest.config.*

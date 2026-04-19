@@ -1,10 +1,20 @@
 {
-  "name": "duck",
-  "displayName": "Duck — runtime-aware rubber duck",
+  "name": "terminal-duck",
+  "displayName": "Terminal Duck",
   "description": "A chat participant that sees the commands you actually ran in the terminal and explains what broke.",
   "version": "0.0.1",
   "publisher": "darrenjaworski",
+  "author": "Darren Jaworski <darrenjaworski@gmail.com>",
+  "license": "MIT",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/darrenjaworski/terminal-duck.git"
+  },
+  "bugs": {
+    "url": "https://github.com/darrenjaworski/terminal-duck/issues"
+  },
+  "homepage": "https://github.com/darrenjaworski/terminal-duck#readme",
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -20,17 +30,17 @@
   "contributes": {
     "chatParticipants": [
       {
-        "id": "duck.duck",
+        "id": "terminal-duck.duck",
         "name": "duck",
-        "fullName": "Duck",
+        "fullName": "Terminal Duck",
         "description": "Ask about the commands you just ran in the terminal.",
         "isSticky": true
       }
     ],
     "commands": [
       {
-        "command": "duck.clearHistory",
-        "title": "Duck: Clear captured shell history"
+        "command": "terminal-duck.clearHistory",
+        "title": "Terminal Duck: Clear captured shell history"
       }
     ]
   },
@@ -43,12 +53,15 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "package": "vsce package",
+    "kitchen-sink": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run compile && npm run package"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "@types/node": "^20.11.0",
     "@types/vscode": "^1.95.0",
+    "@vscode/vsce": "^3.2.0",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.3.3",

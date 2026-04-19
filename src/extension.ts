@@ -11,8 +11,8 @@ class ShellHistory {
 
 	register(context: vscode.ExtensionContext) {
 		context.subscriptions.push(
-			vscode.window.onDidStartTerminalShellExecution(e => this.onStart(e)),
-			vscode.window.onDidEndTerminalShellExecution(e => this.onEnd(e)),
+			vscode.window.onDidStartTerminalShellExecution((e) => this.onStart(e)),
+			vscode.window.onDidEndTerminalShellExecution((e) => this.onEnd(e)),
 		);
 	}
 
@@ -119,16 +119,17 @@ export function activate(context: vscode.ExtensionContext) {
 	history.register(context);
 
 	const participant = vscode.chat.createChatParticipant(
-		'duck.duck',
-		(request, chatContext, stream, token) => handleChat(history, request, chatContext, stream, token),
+		'terminal-duck.duck',
+		(request, chatContext, stream, token) =>
+			handleChat(history, request, chatContext, stream, token),
 	);
 	participant.iconPath = new vscode.ThemeIcon('debug-console');
 	context.subscriptions.push(participant);
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('duck.clearHistory', () => {
+		vscode.commands.registerCommand('terminal-duck.clearHistory', () => {
 			history.clear();
-			vscode.window.showInformationMessage('Duck: shell history cleared.');
+			vscode.window.showInformationMessage('Terminal Duck: shell history cleared.');
 		}),
 	);
 }

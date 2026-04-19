@@ -8,6 +8,7 @@ export interface CapturedExecution {
 }
 
 export function stripAnsi(s: string): string {
+	// eslint-disable-next-line no-control-regex -- ESC (0x1b) is the whole point of ANSI stripping
 	return s.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, '');
 }
 
