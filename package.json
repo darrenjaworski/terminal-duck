@@ -1,0 +1,46 @@
+{
+  "name": "duck",
+  "displayName": "Duck — runtime-aware rubber duck",
+  "description": "A chat participant that sees the commands you actually ran in the terminal and explains what broke.",
+  "version": "0.0.1",
+  "publisher": "darrenjaworski",
+  "private": true,
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "duck.duck",
+        "name": "duck",
+        "fullName": "Duck",
+        "description": "Ask about the commands you just ran in the terminal.",
+        "isSticky": true
+      }
+    ],
+    "commands": [
+      {
+        "command": "duck.clearHistory",
+        "title": "Duck: Clear captured shell history"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -w -p ."
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.95.0",
+    "typescript": "^5.4.0"
+  }
+}
